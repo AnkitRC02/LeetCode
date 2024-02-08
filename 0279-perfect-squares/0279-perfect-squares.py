@@ -1,14 +1,16 @@
-class Solution(object):
-    def numSquares(self, n):
-        """
-        :type n: int
-        :rtype: int
-        """
-        res = [sys.maxint]*(n+1)
-        res[0] = 0
+class Solution:
+    def numSquares(self, n: int) -> int:
+        
+        squares = [i**2 for i in range(1, int(n**0.5)+1)]
+        dp=[1]*(n+1)
+        dp[0] = 0
         for i in range(1,n+1):
-            j = 1
-            while j*j <=i:
-                res[i] = min(res[i-j*j]+1, res[i])
-                j+=1
-        return res[n]
+            if i in squares:
+                continue
+            dp[i]=dp[i-1]+1
+            for square in squares:
+                if i < square:
+                    break
+                dp[i]=min(dp[i], dp[i-square]+1)
+        return dp[-1]
+        
