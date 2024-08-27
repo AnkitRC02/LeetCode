@@ -1,25 +1,32 @@
-import collections
-import itertools
-import heapq
-class Solution(object):
-    def maxProbability(self, n, edges, succProb, start, end):
-        adj = collections.defaultdict(list)
-        for (u, v), p in itertools.izip(edges, succProb):
-            adj[u].append((v, p))
-            adj[v].append((u, p))
-        max_heap = [(-1.0, start)]
-        result, lookup = collections.defaultdict(float), set()
-        result[start] = 1.0
-        while max_heap and len(lookup) != len(adj):
-            curr, u = heapq.heappop(max_heap)
-            if u in lookup:
-                continue
-            lookup.add(u)
-            for v, w in adj[u]:
-                if v in lookup:
-                    continue
-                if v in result and result[v] >= -curr*w:
-                    continue
-                result[v] = -curr*w
-                heapq.heappush(max_heap, (-result[v], v))
-        return result[end]
+class Solution:
+  def maxProbability(
+      self,
+      n: int,
+      edges: list[list[int]],
+      succProb: list[float],
+      start: int,
+      end: int,
+  ) -> float:
+    graph = [[] for _ in range(n)]  # {a: [(b, probability_ab)]}
+    maxHeap = [(-1.0, start)]   # (the probability to reach u, u)
+    seen = [False] * n
+
+    for i, ((u, v), prob) in enumerate(zip(edges, succProb)):
+      graph[u].append((v, prob))
+      graph[v].append((u, prob))
+
+    while maxHeap:
+      prob, u = heapq.heappop(maxHeap)
+      prob *= -1
+      if u == end:
+        return prob
+      if seen[u]:
+        continue
+      seen[u] = True
+      for nextNode, edgeProb in graph[u]:
+        if seen[nextNode]:
+          continue
+        heapq.heappush(maxHeap, (-prob * edgeProb, nextNode))
+
+    return 0
+        
